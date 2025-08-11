@@ -1,0 +1,82 @@
+import warnings
+warnings.filterwarnings("ignore")
+
+import matplotlib
+matplotlib.use('Agg')  # non-GUI backend
+
+# ====== Step 1: Libraries Import ======
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Plot settings
+sns.set_style("whitegrid")
+pd.set_option('display.max_columns', None)
+
+# ====== Step 2: Load Dataset ======
+df = pd.read_csv(r"D:/new file titanic.csv")
+print("Shape of dataset:", df.shape)
+print(df.head())
+
+# ====== Step 3: Basic Info ======
+print("\nData Types:\n", df.dtypes)
+print("\nMissing Values:\n", df.isnull().sum())
+print("\nSummary Statistics:\n", df.describe(include='all'))
+
+# ====== Step 4: Univariate Analysis ======
+# Numerical Columns
+num_cols = df.select_dtypes(include=np.number).columns
+for col in num_cols:
+    plt.figure(figsize=(6,4))
+    sns.histplot(df[col], kde=True, color="skyblue")
+    plt.title(f"Distribution of {col}")
+    plt.savefig(f"{col}_distribution.png")
+
+# Categorical Columns
+cat_cols = df.select_dtypes(exclude=np.number).columns
+for col in cat_cols:
+    plt.figure(figsize=(6,4))
+    sns.countplot(x=col, data=df, palette="Set2")
+    plt.title(f"Count of {col}")
+    plt.xticks(rotation=45)
+    plt.savefig(f"{col}_count.png")
+
+# ====== Step 5: Bivariate Analysis ======
+# Survival by Gender
+plt.figure(figsize=(6,4))
+sns.countplot(x='Sex', hue='Survived', data=df)
+plt.title("Survival Count by Gender")
+plt.savefig("survival_by_gender.png")
+
+# Survival by Class
+plt.figure(figsize=(6,4))
+sns.countplot(x='Pclass', hue='Survived', data=df)
+plt.title("Survival Count by Passenger Class")
+plt.savefig("survival_by_class.png")
+
+# Age vs Survived
+plt.figure(figsize=(6,4))
+sns.boxplot(x='Survived', y='Age', data=df)
+plt.title("Age Distribution by Survival")
+plt.savefig("age_vs_survival.png")
+
+# ====== Step 6: Correlation ======
+plt.figure(figsize=(8,6))
+corr = df.corr(numeric_only=True)
+sns.heatmap(corr, annot=True, cmap="coolwarm")
+plt.title("Correlation Heatmap")
+plt.savefig("correlation_heatmap.png")
+
+# ====== Step 7: Pairplot ======
+sns.pairplot(df, hue="Survived")
+plt.savefig("pairplot.png")
+
+# ====== Step 8: Observations ======
+print("""
+Observations:
+1. Female survival rate > Male survival rate.
+2. 1st class passengers survived more than 3rd class.
+3. Younger passengers had slightly higher survival chances.
+4. Fare and Pclass are correlated.
+""")
